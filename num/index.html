@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字侦探 - 极简猜数游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f0f4ff 0%, #d5deff 100%);
+            padding: 2rem;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 560px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .title {
+            color: #2c3e50;
+            margin-bottom: 1.8rem;
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .game-panel {
+            position: relative;
+            background: #f8f9ff;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            box-shadow: inset 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        #guessInput {
+            width: 160px;
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: 2px solid #e0e4ff;
+            border-radius: 12px;
+            transition: all 0.3s;
+            background: white;
+            text-align: center;
+        }
+
+        #guessInput:focus {
+            outline: none;
+            border-color: #6c7bff;
+            box-shadow: 0 0 10px rgba(108, 123, 255, 0.2);
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6c7bff 0%, #4b5bff 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(108, 123, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(108, 123, 255, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        #message {
+            min-height: 80px;
+            padding: 1.2rem;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s;
+        }
+
+        .message-visible {
+            opacity: 1 !important;
+            transform: translateY(0) !important;
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+            color: white;
+        }
+
+        .success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+        }
+
+        .info {
+            background: linear-gradient(135deg, #4b5bff 0%, #6c7bff 100%);
+            color: white;
+        }
+
+        #history {
+            color: #7f8c8d;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .range-info {
+            color: #4b5bff;
+            font-weight: 600;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @media (max-width: 480px) {
+            .game-container {
+                padding: 1.5rem;
+            }
+            .input-group {
+                flex-direction: column;
+            }
+            #guessInput {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">🔍 数字侦探</h1>
+        <div class="game-panel">
+            <button id="startBtn" class="btn btn-primary">开始挑战</button>
+            <div id="gameControls" class="hidden">
+                <div class="range-info" id="rangeInfo">当前侦查范围：0 - 100</div>
+                <div class="input-group">
+                    <input type="text" id="guessInput" placeholder="输入数字">
+                    <button id="guessBtn" class="btn btn-primary">侦 查</button>
+                </div>
+                <div id="message"></div>
+                <div id="history">侦查次数：0次</div>
+                <button id="restartBtn" class="btn btn-success hidden">重新挑战</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let targetNumber, attempts, minRange, maxRange;
+        const message = document.getElementById('message');
+
+        function initGame() {
+            targetNumber = Math.floor(Math.random() * 101);
+            attempts = 0;
+            minRange = 0;
+            maxRange = 100;
+            updateUI();
+            document.getElementById('gameControls').classList.remove('hidden');
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('restartBtn').classList.add('hidden');
+            message.classList.remove('message-visible');
+        }
+
+        function updateUI() {
+            document.getElementById('rangeInfo').textContent = `当前侦查范围：${minRange} - ${maxRange}`;
+            document.getElementById('history').textContent = `侦查次数：${attempts}次`;
+        }
+
+        function showMessage(text, type) {
+            message.innerHTML = text;
+            message.className = `${type} message-visible`;
+            setTimeout(() => message.classList.add('message-visible'), 10);
+        }
+
+        function handleGuess() {
+            const input = document.getElementById('guessInput').value.trim();
+            const guessInput = document.getElementById('guessInput');
+
+            if (!/^[1-9]\d?$|^100$/.test(input)) {
+                showMessage('⚠️ 请输入0-100之间的整数', 'error');
+                guessInput.classList.add('shake');
+                setTimeout(() => guessInput.classList.remove('shake'), 400);
+                guessInput.value = '';
+                return;
+            }
+
+            const guess = parseInt(input);
+            attempts++;
+            
+            if (guess > targetNumber) {
+                maxRange = guess - 1;
+                showMessage(`🔻 目标更小！当前范围：${minRange} - ${maxRange}`, 'info');
+            } else if (guess < targetNumber) {
+                minRange = guess + 1;
+                showMessage(`🔺 目标更大！当前范围：${minRange} - ${maxRange}`, 'info');
+            } else {
+                showMessage(`🎉 成功捕获！神秘数字是 ${targetNumber}`, 'success');
+                document.getElementById('restartBtn').classList.remove('hidden');
+            }
+
+            updateUI();
+            guessInput.value = '';
+        }
+
+        // 事件绑定
+        document.getElementById('startBtn').addEventListener('click', initGame);
+        document.getElementById('guessBtn').addEventListener('click', handleGuess);
+        document.getElementById('guessInput').addEventListener('keypress', e => e.key === 'Enter' && handleGuess());
+        document.getElementById('restartBtn').addEventListener('click', initGame);
+    </script>
+</body>
+</html>
