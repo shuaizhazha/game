@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>杭州特色活动抽选器</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5f7fa;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        button {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--primary-color), #6c5ce7);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal {
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+            animation: modalShow 0.3s ease;
+        }
+
+        .modal p {
+            font-size: 1.4em;
+            margin: 20px 0;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #retryBtn {
+            background: linear-gradient(135deg, #00cec9, #0984e3);
+            color: white;
+        }
+
+        #completeBtn {
+            background: linear-gradient(135deg, #ff7675, #d63031);
+            color: white;
+        }
+
+        @keyframes modalShow {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 30px;">杭州特色活动抽选器</h2>
+        <button onclick="pickActivity()">🎉 生成本周活动</button>
+    </div>
+
+    <div id="modalBg" class="modal-bg">
+        <div class="modal">
+            <p id="modalText"></p>
+            <div class="modal-buttons">
+                <button class="modal-btn" id="retryBtn">🔄 重新选择</button>
+                <button class="modal-btn" id="completeBtn">✅ 已完成</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 完整词库列表
+        let items = [
+            "徒步西湖十景中的冷门路线（如茅家埠、浴鹄湾）",
+            "骑行钱塘江绿道（从之江路到奥体中心）",
+            "夜爬宝石山看西湖夜景（带手电筒注意安全）",
+            "坐水上巴士游京杭大运河（3元体验杭州「威尼斯」）",
+            "探访西溪湿地小众坞道（如深潭口、虾龙滩）",
+            "打卡杭州「小冰岛」（艺创小镇）拍氛围感大片",
+            "早起去九溪烟树听溪水声（带杯龙井茶）",
+            "在湘湖露营一次（避开人群，独享日落）",
+            "登六和塔数钱塘江大桥的火车班次",
+            "寻找南宋御街的10处历史遗迹（如凤凰寺、鼓楼）",
+            "体验一次龙井茶手工炒制（梅家坞/龙坞茶镇）",
+            "穿汉服游郭庄或胡雪岩故居（约摄影师拍古风照）",
+            "参加灵隐寺早课/素斋体验（需提前预约）",
+            "学做杭帮菜（西湖醋鱼、定胜糕，可报短期课程）",
+            "逛一次吴山夜市淘复古小物（周三晚去人少）",
+            "参观中国美院民艺博物馆（注意周一闭馆）",
+            "听一场杭州大剧院的公益演出（关注官网排期）",
+            "在馒头山社区拍老杭州市井烟火（与居民聊天）",
+            "参加良渚文化村的手工陶艺课",
+            "学唱一段越剧《梁祝》选段（可搜本地戏曲社团）",
+            "在小河直街独立书店抄一首诗（如单向空间）",
+            "去东信·和创园逛一次设计师市集",
+            "在中国丝绸博物馆DIY扎染方巾",
+            "参加天目里茑屋书店的读书会",
+            "在象山艺术公社看一场露天电影",
+            "用手机拍一组「杭州屋檐」主题摄影",
+            "写一篇杭城老街巷的短篇故事（如大马弄、五柳巷）",
+            "在南山路酒吧听一次爵士Live（如黄楼）",
+            "淘二手书（去沈塘桥「风雨书店」或浙图旧书市）",
+            "用杭州方言录一段趣味短视频（学两句「落胃」「木佬佬」）",
+            "参加一次「陌生人饭局」（关注本地社群活动）",
+            "在武林广场教一位老人用智能手机",
+            "去杭州图书馆盲人影院做志愿者",
+            "组织一次西湖边「无主题聊天会」",
+            "在馒头山社区菜场帮摊主卖菜1小时",
+            "参加杭州植物园的夜观昆虫活动（夏季限定）",
+            "体验一次「换宿旅行」（与杭州本地人交换住所1天）",
+            "在钱江新城城市阳台加入一次快闪活动",
+            "为社区画一幅墙绘（联系街道办申请）",
+            "参加杭州「即兴喜剧」开放麦（如飞来即兴）",
+            "凌晨4点去大马弄早市吃咸豆浆",
+            "坐一趟杭州地铁19号线「天空之城」专列（机场快线）",
+            "挑战骑行「西湖爱心线」（约22公里，备好导航）",
+            "在杭州野生动物世界认养一只小动物",
+            "去千岛湖跳一次岛（选3个冷门小岛探险）",
+            "体验富阳永安山滑翔伞（俯瞰富春江）",
+            "在临平水乡古镇摇橹船上唱民谣",
+            "参加杭州马拉松5公里欢乐跑（11月报名）",
+            "去桐庐戴家山住一次畲族民宿（学做乌米饭）",
+            "每年冬至去法喜寺求一串「心想事成」御守"
+        ];
+
+        let currentIndex = -1;
+
+        function pickActivity() {
+            if (items.length === 0) {
+                alert("所有活动都已完成！");
+                return;
+            }
+            currentIndex = Math.floor(Math.random() * items.length);
+            showModal(items[currentIndex]);
+        }
+
+        function showModal(text) {
+            const modalBg = document.getElementById('modalBg');
+            const modalText = document.getElementById('modalText');
+            modalText.innerHTML = text.replace(/（/g, "<br>（"); // 优化排版
+            modalBg.style.display = 'flex';
+
+            document.getElementById('retryBtn').onclick = () => pickActivity();
+            document.getElementById('completeBtn').onclick = () => {
+                items.splice(currentIndex, 1);
+                modalBg.style.display = 'none';
+            };
+        }
+    </script>
+</body>
+</html>
