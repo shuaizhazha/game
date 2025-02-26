@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏大厅</title>
+    <style>
+        /* 通用样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+        }
+
+        /* 标题样式 */
+        .header {
+            text-align: center;
+            padding: 3rem 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* 游戏卡片容器 */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* 游戏卡片样式 */
+        .game-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* 游戏图标 */
+        .game-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
+            background-size: contain;
+        }
+
+        #snake-icon {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffffff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>');
+        }
+
+        #detective-icon {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffffff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM9 8h6v2H9V8zm7 12h-4v-2h4v2z"/></svg>');
+        }
+
+        /* 游戏标题 */
+        .game-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        /* 游戏描述 */
+        .game-desc {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        /* 开始按钮 */
+        .play-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #00b4d8, #0077b6);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,180,216,0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>游戏大厅</h1>
+        <p>选择您要游玩的游戏</p>
+    </div>
+
+    <div class="game-grid">
+        <!-- 贪吃蛇游戏卡片 -->
+        <div class="game-card">
+            <div class="game-icon" id="snake-icon"></div>
+            <h3 class="game-title">贪吃蛇大作战</h3>
+            <p class="game-desc">经典贪吃蛇游戏，挑战你的反应速度！</p>
+            <a href="./snake/index.html" class="play-btn">开始游戏</a>
+        </div>
+
+        <!-- 数字侦探游戏卡片 -->
+        <div class="game-card">
+            <div class="game-icon" id="detective-icon"></div>
+            <h3 class="game-title">数字侦探</h3>
+            <p class="game-desc">逻辑推理挑战，找出隐藏数字！</p>
+            <a href="./num/index.html" class="play-btn">开始游戏</a>
+        </div>
+    </div>
+</body>
+</html>
